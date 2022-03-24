@@ -35,12 +35,8 @@ def generatekey():
     d = pow(e, -1, phi)
 
     #open file private and public
-    fpri = open("private.txt", "r")
-    fpub = open("public.txt", "r")
-
-    #delete
-    fpri.truncate(0)
-    fpub.truncate(0)
+    fpri = open("private.txt", "w")
+    fpub = open("public.txt", "w")
 
     #replace key
     fpri.write((d,n))
