@@ -1,5 +1,8 @@
+from pydoc import plain
 import PySimpleGUI as sg
 from pathlib import Path
+
+from algorsa import rsa_decrypt, rsa_encrypt
 
 sg.theme('DarkAmber')
 
@@ -36,6 +39,8 @@ layout = [[sg.Text("Welcome to RSA Algorithm Cipher", font=('Arial', 16, 'bold')
 window = sg.Window('RSA Algorithm Cipher', layout)
 
 layout = "fileLayout"
+plaintext = ""
+ciphertext = ""
 while True:
     # Display and interact with the Window
     event, values = window.read()
@@ -52,9 +57,14 @@ while True:
 
     if event == "Execute":
         if layout == "fileLayout":
-            window.Element(key="outputfile")
+            window.Element(key="outputfile") # TODO
         elif layout == "plainLayout":
-            window.Element(key="output").Update("tes")
+            if values["encrypt"]:
+                ciphertext = rsa_encrypt(values["inputPlain"])
+                window.Element(key="output").Update(ciphertext)
+            elif values["decrypt"]:
+                plaintext = rsa_decrypt(values["inputPlain"])
+                window.Element(key="output").Update(plaintext)
 
     if event == "saveInput":
         if (values["outputFilename"] == ""):
