@@ -73,21 +73,104 @@ while True:
 
     if event == "Execute":
         if layout == "fileLayout":
-            window.Element(key="outputfile")  # TODO
-        elif layout == "plainLayout":
             if values["encrypt"]:
                 if (values["manual_public_key"] or values["public_key_file"]):
                     if (values["manual_public_key"]):
                         public = values["manual_public_key"]
-                        public_key = bytes(public.split()[0], 'utf-8'), bytes(public.split()[1], 'utf-8')
-                        public_key = int.from_bytes(public_key[0], "big"), int.from_bytes(public_key[1], "big")
-                    else: 
+                        public_key = bytes(
+                            public.split()[0], 'utf-8'), bytes(public.split()[1], 'utf-8')
+                        public_key = int.from_bytes(
+                            public_key[0], "big"), int.from_bytes(public_key[1], "big")
+                    else:
                         filename = values["public_key_file"]
                         if Path(filename).is_file():
                             try:
                                 with open(filename, "rb") as f:
                                     public = f.read()
-                                    public_key = int.from_bytes(public.split()[0], byteorder='big'), int.from_bytes(public.split()[1], byteorder='big')
+                                    public_key = int.from_bytes(public.split()[0], byteorder='big'), int.from_bytes(
+                                        public.split()[1], byteorder='big')
+                            except Exception as e:
+                                print("Error: ", e)
+                else:
+                    public_key, private_key = generatekey()
+
+                if Path(values["inputFile"]).is_file():
+                    try:
+                        with open(values["inputFile"], "rb") as f:
+                            plaintext = f.read()
+                    except Exception as e:
+                        print("Error: ", e)
+                int_val = int.from_bytes(plaintext, "big")
+
+                ciphertext, time = rsa_encrypt(str(int_val), public_key)
+                with open(f'{values["inputFile"].split(".")[0]}-enc.{values["inputFile"].split(".")[1]}', "wb") as f:
+                    f.write(bytes(ciphertext, 'latin-1'))
+                window.Element(key="time").Update(f'{time}')
+                window.Element(key="size").Update(
+                    f'{sys.getsizeof(ciphertext)} bytes')
+
+            elif values["decrypt"]:
+                if (values["manual_private_key"] or values["private_key_file"]):
+                    ciphertext = ""
+                    if Path(values["inputFile"]).is_file():
+                        try:
+                            with open(values["inputFile"], "rb") as f:
+                                ciphertext = f.read()
+                        except Exception as e:
+                            print("Error: ", e)
+                    if (values["manual_private_key"]):
+                        private = values["manual_private_key"]
+                        private_key = bytes(
+                            private.split()[0], 'utf-8'), bytes(private.split()[1], 'utf-8')
+                        private_key_int = int.from_bytes(
+                            private_key[0], "big"), int.from_bytes(private_key[1], "big")
+                        int_val_plaintext, time = rsa_decrypt(
+                            ciphertext, private_key_int)
+                        int_val_plaintext = int(str_val_plaintext)
+                        bytes_val = int_val_plaintext.to_bytes(5, 'big')
+                        plaintext = byte_val.decode('utf-8')
+                    else:
+                        filename = values["private_key_file"]
+                        if Path(filename).is_file():
+                            try:
+                                with open(filename, "rb") as f:
+                                    private = f.read()
+                                    private_key = int.from_bytes(private.split()[0], byteorder='big'), int.from_bytes(
+                                        private.split()[1], byteorder='big')
+                                    str_val_plaintext, time = rsa_decrypt(
+                                        ciphertext, private_key)
+                                    int_val_plaintext = int(str_val_plaintext)
+                                    bytes_val = int_val_plaintext.to_bytes(
+                                        5, 'big')
+                                    plaintext = byte_val.decode('utf-8')
+                            except Exception as e:
+                                print("Error: ", e)
+                    window.Element(key="output").Update(plaintext)
+                    window.Element(key="time").Update(f'{time}')
+                    window.Element(key="size").Update(
+                        f'{sys.getsizeof(plaintext)} bytes')
+                else:
+                    sg.Popup("Masukkan private key!")
+
+# Plain
+
+        elif layout == "plainLayout":
+            if values["encrypt"]:
+                if (values["manual_public_key"] or values["public_key_file"]):
+                    if (values["manual_public_key"]):
+                        public = values["manual_public_key"]
+                        public_key = bytes(
+                            public.split()[0], 'utf-8'), bytes(public.split()[1], 'utf-8')
+                        public_key = int.from_bytes(
+                            public_key[0], "big"), int.from_bytes(public_key[1], "big")
+                    else:
+                        filename = values["public_key_file"]
+                        if Path(filename).is_file():
+                            try:
+                                with open(filename, "rb") as f:
+                                    public = f.read()
+                                    public_key = int.from_bytes(public.split()[0], byteorder='big'), int.from_bytes(
+                                        public.split()[1], byteorder='big')
                             except Exception as e:
                                 print("Error: ", e)
                 else:
@@ -99,15 +182,19 @@ while True:
                 ciphertext, time = rsa_encrypt(str(int_val), public_key)
                 window.Element(key="output").Update(ciphertext)
                 window.Element(key="time").Update(f'{time}')
-                window.Element(key="size").Update(f'{sys.getsizeof(ciphertext)} bytes')
+                window.Element(key="size").Update(
+                    f'{sys.getsizeof(ciphertext)} bytes')
 
             elif values["decrypt"]:
                 if (values["manual_private_key"] or values["private_key_file"]):
                     if (values["manual_private_key"]):
                         private = values["manual_private_key"]
-                        private_key = bytes(private.split()[0], 'utf-8'), bytes(private.split()[1], 'utf-8')
-                        private_key_int = int.from_bytes(private_key[0], "big"), int.from_bytes(private_key[1], "big")
-                        int_val_plaintext, time = rsa_decrypt(values["inputPlain"], private_key_int)
+                        private_key = bytes(
+                            private.split()[0], 'utf-8'), bytes(private.split()[1], 'utf-8')
+                        private_key_int = int.from_bytes(
+                            private_key[0], "big"), int.from_bytes(private_key[1], "big")
+                        int_val_plaintext, time = rsa_decrypt(
+                            values["inputPlain"], private_key_int)
                         int_val_plaintext = int(str_val_plaintext)
                         bytes_val = int_val_plaintext.to_bytes(5, 'big')
                         plaintext = byte_val.decode('utf-8')
@@ -117,16 +204,20 @@ while True:
                             try:
                                 with open(filename, "rb") as f:
                                     private = f.read()
-                                    private_key = int.from_bytes(private.split()[0], byteorder='big'), int.from_bytes(private.split()[1], byteorder='big')
-                                    str_val_plaintext, time = rsa_decrypt(values["inputPlain"], private_key)
+                                    private_key = int.from_bytes(private.split()[0], byteorder='big'), int.from_bytes(
+                                        private.split()[1], byteorder='big')
+                                    str_val_plaintext, time = rsa_decrypt(
+                                        values["inputPlain"], private_key)
                                     int_val_plaintext = int(str_val_plaintext)
-                                    bytes_val = int_val_plaintext.to_bytes(5, 'big')
+                                    bytes_val = int_val_plaintext.to_bytes(
+                                        5, 'big')
                                     plaintext = byte_val.decode('utf-8')
                             except Exception as e:
                                 print("Error: ", e)
                     window.Element(key="output").Update(plaintext)
                     window.Element(key="time").Update(f'{time}')
-                    window.Element(key="size").Update(f'{sys.getsizeof(plaintext)} bytes')
+                    window.Element(key="size").Update(
+                        f'{sys.getsizeof(plaintext)} bytes')
                 else:
                     sg.Popup("Masukkan private key!")
 
