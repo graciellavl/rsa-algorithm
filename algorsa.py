@@ -34,6 +34,21 @@ def generatekey():
     #invers modulo
     d = pow(e, -1, phi)
 
+    #open file private and public
+    fpri = open("private.txt", "r")
+    fpub = open("public.txt", "r")
+
+    #delete
+    fpri.truncate(0)
+    fpub.truncate(0)
+
+    #replace key
+    fpri.write((d,n))
+    fpub.write((e,n))
+
+    fpri.close()
+    fpub.close()
+
     #public key, private key
     return ((e,n), (d,n))
 
