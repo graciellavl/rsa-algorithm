@@ -11,7 +11,7 @@ layout1 = [[sg.Text("File", font=('Arial', 14, 'bold'))],
     sg.Text("Input File Name"),
     sg.Input(key='inputFile'),
     sg.FileBrowse(file_types=(("TXT Files", "*.txt"), ("ALL Files", "*.*"))),
-], ]
+]]
 layout2 = [[sg.Text("Plain", font=('Arial', 14, 'bold'))],
            [sg.Text("Input"), sg.Input(key="inputPlain")],
            [sg.Text("Output"), sg.Input(key="output")],
@@ -25,16 +25,26 @@ layout = [[sg.Text("Welcome to RSA Algorithm Cipher", font=('Arial', 16, 'bold')
           [sg.Text("Pilih action", font=('Arial', 14))],
           [sg.Radio("Encrypt", "Action", default=True, key="encrypt"), sg.Radio(
               "Decrypt", "Action", default=False, key="decrypt")],
-          [sg.Text('_' * 80)],
-          [sg.Column(layout1, key='fileLayout'),
-           sg.Column(layout2, visible=False, key='plainLayout')],
-          [sg.Text("Nama File Output:"), sg.Input(key="outputFilename")],
-          [sg.Button('Save input to file', key="saveInput"),
-           sg.Button('Save output to file', key="saveOutput")],
-          [sg.Text('_' * 80)],
-          [sg.Text("Lama waktu enkripsi/dekripsi: "), sg.Text(key="time")],
-          [sg.Text("Ukuran file hasil enkripsi/dekripsi: "), sg.Text(key="size")]
-          ]
+          [
+    sg.Text("Kunci Publik"),
+    sg.Input(key='public_key_file'),
+    sg.FileBrowse(file_types=(("TXT Files", "*.txt"), ("ALL Files", "*.*"))),
+],
+    [
+    sg.Text("Kunci Private"),
+    sg.Input(key='private_key_file'),
+    sg.FileBrowse(file_types=(("TXT Files", "*.txt"), ("ALL Files", "*.*"))),
+],
+    [sg.Text('_' * 80)],
+    [sg.Column(layout1, key='fileLayout'),
+     sg.Column(layout2, visible=False, key='plainLayout')],
+    [sg.Text("Nama File Output:"), sg.Input(key="outputFilename")],
+    [sg.Button('Save input to file', key="saveInput"),
+     sg.Button('Save output to file', key="saveOutput")],
+    [sg.Text('_' * 80)],
+    [sg.Text("Lama waktu enkripsi/dekripsi: "), sg.Text(key="time")],
+    [sg.Text("Ukuran file hasil enkripsi/dekripsi: "), sg.Text(key="size")]
+]
 
 window = sg.Window('RSA Algorithm Cipher', layout)
 
@@ -57,7 +67,7 @@ while True:
 
     if event == "Execute":
         if layout == "fileLayout":
-            window.Element(key="outputfile") # TODO
+            window.Element(key="outputfile")  # TODO
         elif layout == "plainLayout":
             if values["encrypt"]:
                 ciphertext = rsa_encrypt(values["inputPlain"])
