@@ -230,7 +230,6 @@ while True:
                     f.write(bytes(values["inputPlain"], "utf-8"))
                 else:
                     continue
-                    # f.write(bytes("decrypt"), "utf-8")              # TODO
 
     if event == "saveOutput":
         if (values["outputFilename"] == ""):
@@ -241,7 +240,6 @@ while True:
                     f.write(bytes(values["output"], "utf-8"))
                 else:
                     continue
-                    # f.write(bytes("decrypt"), "utf-8")              # TODO
 
     if event == "RESET":
         window.Element(key="inputFile").Update("")
@@ -256,5 +254,6 @@ while True:
         window.Element(key="size").Update("")
     if event == sg.WIN_CLOSED:
         break
+
 # Finish up by removing from the screen
 window.close()                                  # Part 5 - Close the Window
