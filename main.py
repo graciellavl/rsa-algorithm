@@ -51,6 +51,8 @@ window = sg.Window('RSA Algorithm Cipher', layout)
 layout = "fileLayout"
 plaintext = ""
 ciphertext = ""
+time = 0
+size = 0
 while True:
     # Display and interact with the Window
     event, values = window.read()
@@ -70,11 +72,15 @@ while True:
             window.Element(key="outputfile")  # TODO
         elif layout == "plainLayout":
             if values["encrypt"]:
-                ciphertext = rsa_encrypt(values["inputPlain"])
+                ciphertext, time = rsa_encrypt(values["inputPlain"])
                 window.Element(key="output").Update(ciphertext)
+                window.Element(key="time").Update(f'{time}')
+                window.Element(key="size").Update(f'{size} bytes')
             elif values["decrypt"]:
-                plaintext = rsa_decrypt(values["inputPlain"])
+                plaintext, time = rsa_decrypt(values["inputPlain"])
                 window.Element(key="output").Update(plaintext)
+                window.Element(key="time").Update(f'{time}')
+                window.Element(key="size").Update(f'{size} bytes')
 
     if event == "saveInput":
         if (values["outputFilename"] == ""):
@@ -83,8 +89,6 @@ while True:
             with open(values["outputFilename"], 'wb') as f:
                 if layout == "plainLayout":
                     f.write(bytes(values["inputPlain"], "utf-8"))
-                    size = "10"
-                    window.Element(key="size").Update(f'{size} bytes')
                 else:
                     continue
                     # f.write(bytes("decrypt"), "utf-8")              # TODO
