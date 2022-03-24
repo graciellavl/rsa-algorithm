@@ -40,8 +40,8 @@ def generatekey():
     d = pow(e, -1, phi)
 
     # open file private and public
-    fpri = open("id_rsa.pri", "w")
-    fpub = open("id_rsa.pub", "w")
+    fpri = open("key/id_rsa.pri", "w")
+    fpub = open("key/id_rsa.pub", "w")
 
     # replace key
     fpri.write(str(d) + " " + str(n))

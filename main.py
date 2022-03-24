@@ -103,7 +103,7 @@ while True:
                 int_val = int.from_bytes(plaintext, "big")
 
                 ciphertext, time = rsa_encrypt(str(int_val), public_key)
-                with open(f'{values["inputFile"].split(".")[0]}-enc.{values["inputFile"].split(".")[1]}', "wb") as f:
+                with open(f'output/{values["inputFile"].split(".")[0]}-enc.{values["inputFile"].split(".")[1]}', "wb") as f:
                     f.write(bytes(ciphertext, 'latin-1'))
                 window.Element(key="time").Update(f'{time}')
                 window.Element(key="size").Update(
@@ -225,7 +225,7 @@ while True:
         if (values["outputFilename"] == ""):
             continue
         else:
-            with open(values["outputFilename"], 'wb') as f:
+            with open("output/" + values["outputFilename"], 'wb') as f:
                 if layout == "plainLayout":
                     f.write(bytes(values["inputPlain"], "utf-8"))
                 else:
@@ -236,7 +236,7 @@ while True:
         if (values["outputFilename"] == ""):
             continue
         else:
-            with open(values["outputFilename"], 'wb') as f:
+            with open("output/" + values["outputFilename"], 'wb') as f:
                 if layout == "plainLayout":
                     f.write(bytes(values["output"], "utf-8"))
                 else:
