@@ -180,7 +180,7 @@ while True:
                 int_val = int.from_bytes(byte_val, "big")
 
                 ciphertext, time = rsa_encrypt(str(int_val), public_key)
-                window.Element(key="output").Update(ciphertext)
+                window.Element(key="output").Update(hex(int(ciphertext)))
                 window.Element(key="time").Update(f'{time} seconds')
                 window.Element(key="size").Update(
                     f'{sys.getsizeof(ciphertext)} bytes')
