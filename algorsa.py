@@ -3,10 +3,10 @@ from sympy import *
 import sympy.ntheory as nt
 
 def fpb(a,b):
-    while (b!=0):
-        a = b
-        b = a%b
+  if b == 0:
     return a
+  else: 
+    return fpb(b,a%b)
 
 def generateprime():
     while True:
