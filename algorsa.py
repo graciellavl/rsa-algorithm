@@ -4,6 +4,8 @@ from sympy import *
 import sympy.ntheory as nt
 from typing import List
 from textwrap import wrap
+import time
+
 
 def fpb(a,b):
   if b == 0:
@@ -69,6 +71,8 @@ def block_to_text(m: List[int], block_size: int):
     return "".join(final_m)
 
 def rsa_encrypt(plain, public_key):
+    start_time = time.time()
+
     e, n = public_key
 
     block_size = len(str(n))
@@ -79,9 +83,11 @@ def rsa_encrypt(plain, public_key):
     for block in m:
         ci = pow(block, e, n)
         c.append(ci)
-    return block_to_text(c, block_size)
+    return (block_to_text(c, block_size), time.time() - start_time) # (cipher, time)
 
 def rsa_decrypt(cipher, private_key):
+    start_time = time.time()
+
     d, n = private_key
 
     c = text_to_block(cipher, n)
@@ -90,7 +96,7 @@ def rsa_decrypt(cipher, private_key):
         mi = pow(block, d, n)
         m.append(mi)
     # return block_to_text(m, block_size)
-    return ''.join(list(map(str, m)))
+    return (''.join(list(map(str, m))), time.time() - start_time) # (plain, time)
 
 if (__name__ == "__main__"):
 
