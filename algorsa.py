@@ -4,20 +4,23 @@ from sympy import *
 import sympy.ntheory as nt
 from typing import List
 from textwrap import wrap
-import time
+from datetime import datetime
+import timeit
+import sys
 
+def fpb(a, b):
+    if b == 0:
+        return a
+    else:
+        return fpb(b, a % b)
 
-def fpb(a,b):
-  if b == 0:
-    return a
-  else: 
-    return fpb(b,a%b)
 
 def generateprime():
     while True:
         hasil = random.randint(0, 1000000000)
         if nt.isprime(hasil):
             return hasil
+
 
 def generatekey():
     p = generateprime()
@@ -26,29 +29,30 @@ def generatekey():
     n = p*q
     phi = (p-1)*(q-1)
     e = random.randint(1, phi)
-    gcd = fpb(e,phi)
+    gcd = fpb(e, phi)
 
-    #e relatif prima dengan phi
-    while (gcd!=1):
+    # e relatif prima dengan phi
+    while (gcd != 1):
         e = random.randint(1, phi)
         gcd = fpb(e, phi)
 
-    #invers modulo
+    # invers modulo
     d = pow(e, -1, phi)
 
-    #open file private and public
-    fpri = open("private.txt", "w")
-    fpub = open("public.txt", "w")
+    # open file private and public
+    fpri = open("id_rsa.pri", "w")
+    fpub = open("id_rsa.pub", "w")
 
-    #replace key
+    # replace key
     fpri.write(str(d) + " " + str(n))
     fpub.write(str(e) + " " + str(n))
 
     fpri.close()
     fpub.close()
 
-    #public key, private key
-    return ((e,n), (d,n))
+    # public key, private key
+    return ((e, n), (d, n))
+
 
 def text_to_block(message: str, n: int):
     digits: int = len(str(n))
@@ -63,6 +67,19 @@ def text_to_block(message: str, n: int):
     print(messages)
     return messages
 
+    # digits = len(str(n))
+
+    # plain_blocks = [b'\x00' + bytes(message[i:i+digits-1], 'utf-8')
+    #                 for i in range(0, len(message), digits-1)]
+
+    # pad_length = digits-len(plain_blocks[-1])
+    # if pad_length:
+    #     plain_blocks[-1] = b'\x00' * pad_length + plain_blocks[-1]
+
+    # plain_blocks = [int.from_bytes(byte, byteorder='big', signed=False) for byte in plain_blocks]
+    # return plain_blocks
+
+
 def block_to_text(m: List[int], block_size: int):
     final_m = []
     print_format = "0" + str(block_size) + "d"
@@ -70,23 +87,29 @@ def block_to_text(m: List[int], block_size: int):
         final_m.append(format(block, print_format))
     return "".join(final_m)
 
+
 def rsa_encrypt(plain, public_key):
-    start_time = time.time()
+    start_time = timeit.default_timer()
 
     e, n = public_key
 
     block_size = len(str(n))
 
-    m = text_to_block(plain, n)
+    m = text_to_block(plain, block_size)
     c = []
 
     for block in m:
         ci = pow(block, e, n)
         c.append(ci)
-    return (block_to_text(c, block_size), time.time() - start_time) # (cipher, time)
+
+    stop_time = timeit.default_timer()
+    execution_time  = stop_time - start_time
+    # (cipher, time)
+    return (block_to_text(c, block_size), execution_time)
+
 
 def rsa_decrypt(cipher, private_key):
-    start_time = time.time()
+    start_time = timeit.default_timer()
 
     d, n = private_key
 
@@ -95,17 +118,28 @@ def rsa_decrypt(cipher, private_key):
     for block in c:
         mi = pow(block, d, n)
         m.append(mi)
-    # return block_to_text(m, block_size)
-    return (''.join(list(map(str, m))), time.time() - start_time) # (plain, time)
+
+    stop_time = timeit.default_timer()
+    execution_time  = stop_time - start_time
+    # (plain, time)
+    return ((''.join(list(map(str, m)))), execution_time)
+
 
 if (__name__ == "__main__"):
 
-    message = 9999999999999999999
-    print("Message\t\t\t:", message)
+    message = "9999999999999999999"
+    print("Message:", message)
 
     public_key, private_key = generatekey()
-    ciphertext = rsa_encrypt(message, public_key)
-    print("Ciphertext\t\t:", ciphertext)
+    ciphertext, time = rsa_encrypt(message, public_key)
+    print("Ciphertext:", ciphertext)
+    print("Time:", time)
+    print("Size:", sys.getsizeof(ciphertext))
 
-    decrypted_m = rsa_decrypt(ciphertext, private_key)
-    print("Decrypted\t\t:", decrypted_m)
+    decrypted, exec_time = rsa_decrypt(ciphertext, private_key)
+    print("Decrypted:", decrypted)
+    print("Time:", exec_time)
+    print("Size:", sys.getsizeof(decrypted))
+
+    print("size", sys.getsizeof('035633971152406660044520212182232582234010342646019768278131440048215330000000000000000001177563904265596590035633971152406660'))
+
