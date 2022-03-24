@@ -39,8 +39,8 @@ def generatekey():
     fpub = open("public.txt", "w")
 
     #replace key
-    fpri.write((d,n))
-    fpub.write((e,n))
+    fpri.write(str(d) + " " + str(n))
+    fpub.write(str(e) + " " + str(n))
 
     fpri.close()
     fpub.close()
