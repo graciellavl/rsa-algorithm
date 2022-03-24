@@ -105,7 +105,7 @@ while True:
                 ciphertext, time = rsa_encrypt(str(int_val), public_key)
                 with open(f'output/{values["inputFile"].split(".")[0]}-enc.{values["inputFile"].split(".")[1]}', "wb") as f:
                     f.write(bytes(ciphertext, 'latin-1'))
-                window.Element(key="time").Update(f'{time}')
+                window.Element(key="time").Update(f'{time} seconds')
                 window.Element(key="size").Update(
                     f'{sys.getsizeof(ciphertext)} bytes')
 
@@ -128,7 +128,7 @@ while True:
                             ciphertext, private_key_int)
                         int_val_plaintext = int(str_val_plaintext)
                         bytes_val = int_val_plaintext.to_bytes(5, 'big')
-                        plaintext = byte_val.decode('utf-8')
+                        plaintext = bytes_val.decode('utf-8')
                     else:
                         filename = values["private_key_file"]
                         if Path(filename).is_file():
@@ -142,11 +142,11 @@ while True:
                                     int_val_plaintext = int(str_val_plaintext)
                                     bytes_val = int_val_plaintext.to_bytes(
                                         5, 'big')
-                                    plaintext = byte_val.decode('utf-8')
+                                    plaintext = bytes_val.decode('utf-8')
                             except Exception as e:
                                 print("Error: ", e)
                     window.Element(key="output").Update(plaintext)
-                    window.Element(key="time").Update(f'{time}')
+                    window.Element(key="time").Update(f'{time} seconds')
                     window.Element(key="size").Update(
                         f'{sys.getsizeof(plaintext)} bytes')
                 else:
@@ -181,7 +181,7 @@ while True:
 
                 ciphertext, time = rsa_encrypt(str(int_val), public_key)
                 window.Element(key="output").Update(ciphertext)
-                window.Element(key="time").Update(f'{time}')
+                window.Element(key="time").Update(f'{time} seconds')
                 window.Element(key="size").Update(
                     f'{sys.getsizeof(ciphertext)} bytes')
 
@@ -197,7 +197,7 @@ while True:
                             values["inputPlain"], private_key_int)
                         int_val_plaintext = int(str_val_plaintext)
                         bytes_val = int_val_plaintext.to_bytes(5, 'big')
-                        plaintext = byte_val.decode('utf-8')
+                        plaintext = bytes_val.decode('utf-8')
                     else:
                         filename = values["private_key_file"]
                         if Path(filename).is_file():
@@ -211,11 +211,11 @@ while True:
                                     int_val_plaintext = int(str_val_plaintext)
                                     bytes_val = int_val_plaintext.to_bytes(
                                         5, 'big')
-                                    plaintext = byte_val.decode('utf-8')
+                                    plaintext = bytes_val.decode('utf-8')
                             except Exception as e:
                                 print("Error: ", e)
                     window.Element(key="output").Update(plaintext)
-                    window.Element(key="time").Update(f'{time}')
+                    window.Element(key="time").Update(f'{time} seconds')
                     window.Element(key="size").Update(
                         f'{sys.getsizeof(plaintext)} bytes')
                 else:
