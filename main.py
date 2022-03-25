@@ -194,9 +194,10 @@ while True:
                         private_key_int = int.from_bytes(
                             private_key[0], "big"), int.from_bytes(private_key[1], "big")
                         int_val_plaintext, time = rsa_decrypt(
-                            values["inputPlain"], private_key_int)
-                        int_val_plaintext = int(str_val_plaintext)
-                        bytes_val = int_val_plaintext.to_bytes(5, 'big')
+                            str(int(values["inputPlain"], 16)), private_key_int)
+                        int_val_plaintext = int(int_val_plaintext)
+                        print(len(private_key[1]))
+                        bytes_val = int_val_plaintext.to_bytes(len(private_key[1]), 'big')
                         plaintext = bytes_val.decode('utf-8')
                     else:
                         filename = values["private_key_file"]
