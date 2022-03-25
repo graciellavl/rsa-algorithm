@@ -107,7 +107,7 @@ def rsa_decrypt(cipher, private_key):
     for block in c:
         mi = pow(block, d, n)
         mi = mi.to_bytes(len(str(mi)), 'big')
-        mi.replace(b'\x00',b'')
+        mi = mi.replace(b'\x00',b'')
         m.append(mi)
 
     #m = str(m)
