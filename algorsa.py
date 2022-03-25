@@ -7,7 +7,7 @@ from textwrap import wrap
 from datetime import datetime
 import timeit
 import sys
-
+import math
 
 def fpb(a, b):
     if b == 0:
@@ -77,67 +77,81 @@ def block_to_text(m: List[int], block_size: int):
     return "".join(final_m)
 
 
-def rsa_encrypt(plain, public_key):
+def rsa_encrypt(plaintext, public_key):
     start_time = timeit.default_timer()
-
     e, n = public_key
+    blocksize = math.ceil(math.log2(n)/8)
+    
+    plain_blocks = [b'\x00' + plaintext[i:i+blocksize-1]
+                    for i in range(0, len(plaintext), blocksize-1)]
 
-    block_size = len(str(n))
+    pad_length = blocksize-len(plain_blocks[-1])
+    if pad_length:
+        plain_blocks[-1] = b'\x00' * pad_length + plain_blocks[-1]
 
-    m = text_to_block(plain, block_size)
-    c = []
+    plain_blocks = [int.from_bytes(
+        byte, byteorder='big', signed=False) for byte in plain_blocks]
 
-    for block in m:
-        ci = pow(block, e, n)
-        c.append(ci)
+    cipher_blocks = []
+    for i in range(len(plain_blocks)):
+        cipher_blocks.append(pow(plain_blocks[i], e, n))
+
+    cipher_blocks = [block.to_bytes(
+        length=blocksize, byteorder='big', signed=False) for block in cipher_blocks]
+
+    ciphertext = b''
+    for block in cipher_blocks:
+        ciphertext += block
+    ciphertext += pad_length.to_bytes(length=4, byteorder='big', signed=False)
 
     stop_time = timeit.default_timer()
     execution_time = stop_time - start_time
     # (cipher, time)
-    return (block_to_text(c, block_size), execution_time)
+    return (bytearray(ciphertext), execution_time)
 
 
-def rsa_decrypt(cipher, private_key):
+def rsa_decrypt(ciphertext, private_key):
     start_time = timeit.default_timer()
 
     d, n = private_key
+    blocksize = math.ceil(math.log2(n)/8)
 
-    c = text_to_block(cipher, n)
-    m = []
-    for block in c:
-        mi = pow(block, d, n)
-        mi = mi.to_bytes(len(str(mi)), 'big')
-        mi = mi.replace(b'\x00',b'')
-        m.append(mi)
+    # Splitting ciphertext with padding info
+    cipher_blocks, padding = ciphertext[:-4], int.from_bytes(ciphertext[-4:],byteorder='big',signed=False)
 
-    #m = str(m)
-    #m = m.replace(b'\x00',b'')
+    # Splitting blocks
+    cipher_blocks = [cipher_blocks[i:i+blocksize] for i in range(0,len(cipher_blocks),blocksize)]
+
+    # Converting blocks to integer
+    cipher_blocks = [int.from_bytes(byte, byteorder='big', signed=False) for byte in cipher_blocks]
+
+
+    # Decrypting
+    plain_blocks = []
+    for i in range(len(cipher_blocks)):
+        plain_blocks.append(pow(cipher_blocks[i], d, n))
+    
+    # Converting blocks to Byte
+    plain_blocks = [block.to_bytes(length=blocksize, byteorder='big',signed=False) for block in plain_blocks]
+
+    # Removing padding
+    plain_blocks[-1] = plain_blocks[-1][padding:]
+    
+    # Removing guard
+    plain_blocks = [block[1:] for block in plain_blocks]
+
+    # Generating plaintext
+    plaintext = b''
+    for block in plain_blocks:
+        plaintext += block
 
     stop_time = timeit.default_timer()
     execution_time = stop_time - start_time
     # (plain, time)
-    return (m, execution_time)
+    return (bytearray(plaintext), execution_time)
 
 
 if (__name__ == "__main__"):
-
-    # message = "9999999999999999999"
-    # print("Message:", message)
-
-    # public_key, private_key = generatekey()
-    # ciphertext, time = rsa_encrypt(message, public_key)
-    # print("Ciphertext:", ciphertext)
-    # print("Time:", time)
-    # print("Size:", sys.getsizeof(ciphertext))
-
-    decrypted, exec_time = rsa_decrypt("118706122502634873118981311662182950413359720199452371689562180737007949024557434041394393292491689895759117948843250721017466624801994523716895621807370079490245574340413940996151254699501744055434069074821366745150027162389914627266967054331356502400700701309961512546995017440554340690748213667451501821283595711692888389051878508431396005357166793580259136164583615477960520798267858439329249168989575911794884325072101746662480199452371689562180737007949024557434041394000000000000000000000000000000000000000000105953986760353610432796280021890979626290111667935802591361645836154779605207982678584027162389914627266967054331356502400700701318706122502634873118981311662182950413359720000000000000000000000000000000000000000000027162389914627266967054331356502400700701339329249168989575911794884325072101746662483932924916898957591179488432507210174666248099615125469950174405543406907482136674515000000000000000000000000000000000000000000001821283595711692888389051878508431396005357187061225026348731189813116621829504133597216679358025913616458361547796052079826785840000000000000000000000000000000000000000001", (255460846033287127, 530728801528365161))
-    print("Decrypted:", decrypted)
-    #int_val_plaintext = int(decrypted)
-   # bytes_val = int_val_plaintext.to_bytes(len("118706122502634873118981311662182950413359720199452371689562180737007949024557434041394393292491689895759117948843250721017466624801994523716895621807370079490245574340413940996151254699501744055434069074821366745150027162389914627266967054331356502400700701309961512546995017440554340690748213667451501821283595711692888389051878508431396005357166793580259136164583615477960520798267858439329249168989575911794884325072101746662480199452371689562180737007949024557434041394000000000000000000000000000000000000000000105953986760353610432796280021890979626290111667935802591361645836154779605207982678584027162389914627266967054331356502400700701318706122502634873118981311662182950413359720000000000000000000000000000000000000000000027162389914627266967054331356502400700701339329249168989575911794884325072101746662483932924916898957591179488432507210174666248099615125469950174405543406907482136674515000000000000000000000000000000000000000000001821283595711692888389051878508431396005357187061225026348731189813116621829504133597216679358025913616458361547796052079826785840000000000000000000000000000000000000000001"), 'big')
-   # plaintext = bytes_val.decode('latin')
-   # print('Plaintext: ', plaintext)
-    print("Time:", exec_time)
-    print("Size:", sys.getsizeof(decrypted))
 
     print("size", sys.getsizeof(
         '035633971152406660044520212182232582234010342646019768278131440048215330000000000000000001177563904265596590035633971152406660'))

@@ -2,6 +2,7 @@ from pydoc import plain
 import PySimpleGUI as sg
 from pathlib import Path
 import sys
+import base64
 
 from algorsa import rsa_decrypt, rsa_encrypt, generatekey
 
@@ -176,11 +177,10 @@ while True:
                 else:
                     public_key, private_key = generatekey()
 
-                byte_val = bytes(values["inputPlain"], 'utf=8')
-                int_val = int.from_bytes(byte_val, "big")
+                plaintext = bytearray(values['inputPlain'].encode())
 
-                ciphertext, time = rsa_encrypt(str(int_val), public_key)
-                window.Element(key="output").Update(hex(int(ciphertext)))
+                ciphertext, time = rsa_encrypt(plaintext, public_key)
+                window.Element(key="output").Update(bytes(ciphertext).hex())
                 window.Element(key="time").Update(f'{time} seconds')
                 window.Element(key="size").Update(
                     f'{sys.getsizeof(ciphertext)} bytes')
@@ -193,12 +193,13 @@ while True:
                             private.split()[0], 'utf-8'), bytes(private.split()[1], 'utf-8')
                         private_key_int = int.from_bytes(
                             private_key[0], "big"), int.from_bytes(private_key[1], "big")
-                        int_val_plaintext, time = rsa_decrypt(
-                            str(int(values["inputPlain"], 16)), private_key_int)
+                        try:
+                            ciphertext = bytearray(bytes.fromhex(values['inputPlain']))
+                            plaintext, time = rsa_decrypt(ciphertext, private_key_int)
+                            plaintext = plaintext.decode('latin-1')
+                        except:
+                            plaintext = 'Wrong ciphertext code'
 
-                        print("int_val_plaintext", int_val_plaintext)
-                        for item in int_val_plaintext:
-                            plaintext += item.decode("latin-1")
                     else:
                         filename = values["private_key_file"]
                         if Path(filename).is_file():
